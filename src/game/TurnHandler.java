@@ -51,14 +51,16 @@ public final class TurnHandler {
 
             InOutput.displayBoard();
 
-            if(c.isPlayer()){
-                try {
-                    playerTurn((PlayerCharacter) c);
-                }catch (Exception e){
+            if(!c.isDead()) {
+                if (c.isPlayer()) {
+                    try {
+                        playerTurn((PlayerCharacter) c);
+                    } catch (Exception e) {
+                        enemyTurn((EnemyCharacter) c);
+                    }
+                } else {
                     enemyTurn((EnemyCharacter) c);
                 }
-            }else {
-                enemyTurn((EnemyCharacter)c);
             }
 
             displayMessage();
@@ -77,7 +79,11 @@ public final class TurnHandler {
                 actionList[i] = character.getActions().get(i).getName();
             }
         }
-        character.performAction(InOutput.chooseFromList(actionList, character.getName() + "'s turn"));
+        boolean actionChosen = false;
+        while(!actionChosen){
+            actionChosen = character.performAction(InOutput.chooseFromList(actionList, character.getName() + "'s turn"));
+        }
+
     }
     private void enemyTurn(EnemyCharacter character){
 

@@ -21,39 +21,52 @@ public class Attack extends GameAction{
     }
 
     @Override
-    public void perform() {
-        //specify target
+    public boolean perform() {
+        //specify target    (!write a static method chooseTarget later!)
         ArrayList<GameCharacter> possibleTargets = TurnHandler.getInstance().getCharacters().stream().filter(p -> GameConstants.distance(owner,p) <= range).filter(p -> !p.isDead()).collect(Collectors.toCollection(ArrayList::new));
-        String[] names = new String[possibleTargets.size()];
-        for (int i = 0; i < names.length; i++) {
+        String[] names = new String[possibleTargets.size()+1];
+        for (int i = 0; i < possibleTargets.size(); i++) {
             names[i] = possibleTargets.get(i).getName();
         }
-        GameCharacter target = possibleTargets.get(InOutput.chooseFromList(names, owner.getName() + "'s turn"));
+        names[names.length-1] = "abort";
+        int targetNum = InOutput.chooseFromList(names, owner.getName() + "'s turn");
+        if(targetNum == possibleTargets.size()){
+            return false;
+        }
+        GameCharacter target = possibleTargets.get(targetNum);
          //GameCharacter target = TurnHandler.getInstance().getCharacters().get(InOutput.chooseCharacter("specify a target"));
         //deal damage
         int power = owner.getStrength();
         target.takeDamage(power);
         //inform player
         TurnHandler.getInstance().addMessage(owner.getName() + " has attacked " + target.getName() + ", dealing " + power + " points of damage");
+        return true;
     }
     
     //attack previously specified target
-    public void perform(GameCharacter target){
+    public boolean perform(GameCharacter target){
         //deal damage
         int power = owner.getStrength();
         target.takeDamage(power);
         //inform player
         TurnHandler.getInstance().addMessage(owner.getName() + " has attacked " + target.getName() + ", dealing " + power + " points of damage");
+        return true;
     }
-    public void performRandom(List<GameCharacter> targets){
+    public boolean performRandom(List<GameCharacter> targets){
         //determine
         ArrayList<GameCharacter> possibleTargets = targets.stream().filter(p -> GameConstants.distance(owner,p) <= range).filter(p -> !p.isDead()).collect(Collectors.toCollection(ArrayList::new));
-        GameCharacter target = possibleTargets.get(new Random().nextInt(possibleTargets.size()));
+        GameCharacter target = null;
+        if(possibleTargets.size() > 0){
+            target = possibleTargets.get(new Random().nextInt(possibleTargets.size()));
+        }else{
+            return false;
+        }
         //deal damage
         int power = owner.getStrength();
         target.takeDamage(power);
         //inform player
         TurnHandler.getInstance().addMessage(owner.getName() + " has attacked " + target.getName() + ", dealing " + power + " points of damage");
+        return true;
 
     }
 }

@@ -14,8 +14,8 @@ public class PlayerCharacter extends GameCharacter {
         actions.add(new Attack(this));
     }
 
-    public void performAction(int i){
-        actions.get(i).perform();
+    public boolean performAction(int i){
+        return actions.get(i).perform();
     }
 
     //the following is for tespurposes
