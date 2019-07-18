@@ -5,6 +5,7 @@ import game.TurnHandler;
 import game.character.GameCharacter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class InOutput {
 
@@ -71,27 +72,35 @@ public abstract class InOutput {
         IOHelper.out(message);
         IOHelper.sep('-');
     }
+    public static void out(List<String> message){
+        IOHelper.sep('-');
+        for (String m:message) {
+            IOHelper.out(m);
+        }
+        IOHelper.sep('-');
+    }
+    public static void out(String[] message){
+        IOHelper.sep('-');
+        for (String m:message) {
+            IOHelper.out(m);
+        }
+        IOHelper.sep('-');
+    }
 
     public static void displayBoard(){
-        ArrayList<GameCharacter> players = new ArrayList<>();
-        ArrayList<GameCharacter> enemies = new ArrayList<>();
-
-        for (GameCharacter c: TurnHandler.getInstance().getCharacters()) {
-            if(c.isPlayer()){
-                players.add(c);
-            }else{
-                enemies.add(c);
-            }
-        }
 
         IOHelper.sep('=');
-        for (GameCharacter c:enemies) {
-            IOHelper.out("|"+c.getName()+ ":" + c.getHp() + "|");
-        }
-        IOHelper.sep(' ');
-        IOHelper.out("");
-        for (GameCharacter c:players) {
-            IOHelper.out("|"+c.getName()+ ":" + c.getHp() +"|");
+        int max = 4;
+        for (int p = 1; p <= max; p++){
+            for (GameCharacter c:TurnHandler.getInstance().getCharacters()) {
+
+                if(c.getPosition() == p){
+
+                    IOHelper.out("|" + c.getName() + ":" + c.getHp() + "|");
+                }
+            }
+            if(p==GameConstants.CLOSERANGEENEMY)IOHelper.out("\n");
+            if(p!=max) IOHelper.out("\n");
         }
         IOHelper.sep('=');
 
