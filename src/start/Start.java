@@ -9,8 +9,15 @@ public class Start {
 
        new PlayerCharacter("Pacman");
        new Ghost("Blinky");
+       new Ghost("Pinky");
+       new Ghost("Clyde").switchSides();
 
        TurnHandler.getInstance().round();
+        TurnHandler.getInstance().round();
+        TurnHandler.getInstance().round();
+        TurnHandler.getInstance().round();
+        TurnHandler.getInstance().round();
+        TurnHandler.getInstance().round();
 
     }
 }

@@ -18,9 +18,10 @@ public class Ghost extends EnemyCharacter {
     @Override
     public void act() {
         //get possible targets
-        ArrayList<GameCharacter> players = TurnHandler.getInstance().getCharacters().stream().filter(GameCharacter::isPlayer).collect(Collectors.toCollection(ArrayList::new));
+        ArrayList<GameCharacter> players = TurnHandler.getInstance().getCharacters().stream().filter(p -> p.isPlayer() != this.isPlayer()).filter(p -> !p.isDead()).collect(Collectors.toCollection(ArrayList::new));
         //attack random target
-        new Attack(this).perform(players.get(new Random().nextInt(players.size())));
+        if(players.size() > 0)
+        new Attack(this).performRandom(players);
     }
     
     //the following is for tespurposes
