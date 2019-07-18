@@ -1,19 +1,16 @@
 package game.character;
 
 import game.TurnHandler;
-import game.character.actions.Attack;
 import game.character.actions.GameAction;
-import game.character.actions.TestAction1;
-import game.character.actions.TestAction2;
 
 import java.util.ArrayList;
 
 import static game.GameConstants.*;
 
 public abstract class GameCharacter {
-    protected int hp,rp, initiative, strength;
+    protected int hp,rp, initiative, strength, position;
     protected boolean dead, player;
-    protected final String name;
+    protected String name;
     protected TurnHandler handler;
     protected ArrayList<GameAction> actions;
 
@@ -34,7 +31,19 @@ public abstract class GameCharacter {
 
     public int takeDamage(int amount){
         this.hp-=amount;
+        if(this.hp<1){
+            die();
+        }
         return hp;
+    }
+    public void die(){
+        this.dead = true;
+        this.hp = 0;
+        this.name = name + DEADTAG;
+    }
+
+    public void switchSides(){
+        this.player = !this.player;
     }
 
     public int getHp() {
@@ -55,6 +64,10 @@ public abstract class GameCharacter {
 
     public int getInitiative(){
         return initiative;
+    }
+
+    public int getPosition() {
+        return position;
     }
 
     public boolean isDead() {

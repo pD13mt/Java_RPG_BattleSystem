@@ -5,6 +5,7 @@ import game.TurnHandler;
 import game.character.GameCharacter;
 
 import java.util.ArrayList;
+import java.util.List;
 
 public abstract class InOutput {
 
@@ -69,6 +70,20 @@ public abstract class InOutput {
     public static void out(String message){
         IOHelper.sep('-');
         IOHelper.out(message);
+        IOHelper.sep('-');
+    }
+    public static void out(List<String> message){
+        IOHelper.sep('-');
+        for (String m:message) {
+            IOHelper.out(m);
+        }
+        IOHelper.sep('-');
+    }
+    public static void out(String[] message){
+        IOHelper.sep('-');
+        for (String m:message) {
+            IOHelper.out(m);
+        }
         IOHelper.sep('-');
     }
 

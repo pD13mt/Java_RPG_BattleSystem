@@ -14,12 +14,13 @@ singleton DPa
 public final class TurnHandler {
 
     private static TurnHandler instance;
+    private ArrayList<String> message;
     //private InOutput io;
     private ArrayList<GameCharacter> characters;
 
     private TurnHandler(){
         characters = new ArrayList<>();
-        //io = new InOutput();
+        message = new ArrayList<>();
     }
 
     public static TurnHandler getInstance(){
@@ -32,6 +33,9 @@ public final class TurnHandler {
     public void addCharacter(GameCharacter c){
         if(!characters.contains(c))
             characters.add(c);
+    }
+    public void addMessage(String newMessage){
+        this.message.add(newMessage);
     }
 
     public ArrayList<GameCharacter> getCharacters(){
@@ -48,10 +52,16 @@ public final class TurnHandler {
             InOutput.displayBoard();
 
             if(c.isPlayer()){
-                playerTurn((PlayerCharacter)c);
+                try {
+                    playerTurn((PlayerCharacter) c);
+                }catch (Exception e){
+                    enemyTurn((EnemyCharacter) c);
+                }
             }else {
                 enemyTurn((EnemyCharacter)c);
             }
+
+            displayMessage();
 
             charactersToGo = reOrder(charactersToGo,1);
 
@@ -61,13 +71,24 @@ public final class TurnHandler {
     private void playerTurn(PlayerCharacter character){
         String[] actionList = new String[character.getActions().size()];
         for (int i = 0; i < actionList.length; i++){
-            actionList[i] = character.getActions().get(i).getName();
+            if(character.getActions().get(i).getDescription() != null) {
+                actionList[i] = character.getActions().get(i).getName() + " (" + character.getActions().get(i).getDescription() + ")";
+            }else{
+                actionList[i] = character.getActions().get(i).getName();
+            }
         }
         character.performAction(InOutput.chooseFromList(actionList, character.getName() + "'s turn"));
     }
     private void enemyTurn(EnemyCharacter character){
 
         character.act();
+    }
+    private void displayMessage(){
+        if(message.size() < 1){
+            addMessage("nothing happened");
+        }
+        InOutput.out(message);
+        message.clear();
     }
 
 

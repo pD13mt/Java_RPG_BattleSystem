@@ -1,17 +1,16 @@
 package game.character;
 
 import game.character.actions.Attack;
-import game.character.actions.TestAction1;
-import game.character.actions.TestAction2;
+import game.character.actions.Move;
 
 public class PlayerCharacter extends GameCharacter {
     public PlayerCharacter(String name) {
         super(name);
         player = true;
+        position = 2;
     
         //initialize action list (in child class if a characterClassSystem has been implemented
-        actions.add(new TestAction1(this));//test
-        actions.add(new TestAction2(this));//test
+        actions.add(new Move(this));
         actions.add(new Attack(this));
     }
 
