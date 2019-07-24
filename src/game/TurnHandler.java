@@ -15,76 +15,120 @@ public final class TurnHandler {
 
     private static TurnHandler instance;
     private ArrayList<String> message;
-    //private InOutput io;
     private ArrayList<GameCharacter> characters;
 
-    private TurnHandler(){
+    private TurnHandler() {
         characters = new ArrayList<>();
         message = new ArrayList<>();
     }
 
-    public static TurnHandler getInstance(){
-        if (instance == null){
+    public static TurnHandler getInstance() {
+        if (instance == null) {
             instance = new TurnHandler();
         }
         return instance;
     }
 
-    public void addCharacter(GameCharacter c){
-        if(!characters.contains(c))
+    public void addCharacter(GameCharacter c) {
+        if (!characters.contains(c))
             characters.add(c);
     }
-    public void addMessage(String newMessage){
-        this.message.add(newMessage);
+
+    public void removeCharacter(GameCharacter c) {
+        characters.remove(c);
     }
 
-    public ArrayList<GameCharacter> getCharacters(){
+
+    public void addMessage(String newMessage) {
+        if (message.size() < 1) {
+            this.message.add(newMessage);
+        } else {
+            this.message.add("\n" + newMessage);
+        }
+
+    }
+
+    public ArrayList<GameCharacter> getCharacters() {
         return characters;
     }
 
-    /*
+    public void start() {
+        for (GameCharacter c:GameHandler.getInstance().getParty()) {
+            addCharacter(c);
+        }
+        round();
 
-     */
-    public void round(){
-        ArrayList<GameCharacter> charactersToGo = reOrder(characters, 0);
-        for (GameCharacter c:charactersToGo){
+    }
 
-            InOutput.displayBoard();
+    public void round() {
+        boolean won = false;
+        while (!won) {
+            for (GameCharacter c:characters) {
+                c.rollInitiative();
+            }
+            ArrayList<GameCharacter> charactersToGo = reOrder(characters, 0);
+            for (GameCharacter c : charactersToGo) {
 
-            if(c.isPlayer()){
                 try {
-                    playerTurn((PlayerCharacter) c);
-                }catch (Exception e){
-                    enemyTurn((EnemyCharacter) c);
+                    PlayerCharacter p = (PlayerCharacter) c;
+                    InOutput.displayBoard();
+                    InOutput.characterInfo(c);
+                } catch (Exception e) {
+
                 }
-            }else {
-                enemyTurn((EnemyCharacter)c);
+                this.addMessage(c.getName() + "'s turn:");
+                if (!c.isDead()) {
+                    c.turn();
+                    displayMessage();
+                }
+
+
+                charactersToGo = reOrder(charactersToGo, 1);
+
+                InOutput.endTurn();
+
             }
-
-            displayMessage();
-
-            charactersToGo = reOrder(charactersToGo,1);
-
+            won = winCondition();
+            if (loseCondition()) {
+                InOutput.out("you lose");
+                System.exit(0);
+            }
+            if (won) {
+                end();
+            }
         }
     }
 
-    private void playerTurn(PlayerCharacter character){
-        String[] actionList = new String[character.getActions().size()];
-        for (int i = 0; i < actionList.length; i++){
-            if(character.getActions().get(i).getDescription() != null) {
-                actionList[i] = character.getActions().get(i).getName() + " (" + character.getActions().get(i).getDescription() + ")";
-            }else{
-                actionList[i] = character.getActions().get(i).getName();
+    public void end() {
+        InOutput.out("you win");
+        characters.clear();
+        for (GameCharacter c:GameHandler.getInstance().getParty()) {
+            if(c.isDead()){
+                GameHandler.getInstance().removeFromParty(c);
             }
         }
-        character.performAction(InOutput.chooseFromList(actionList, character.getName() + "'s turn"));
     }
-    private void enemyTurn(EnemyCharacter character){
 
-        character.act();
+    private boolean winCondition() {
+        for (GameCharacter c : characters) {
+            if (!c.isPlayer() && !c.isDead()) {
+                return false;
+            }
+        }
+        return true;
     }
-    private void displayMessage(){
-        if(message.size() < 1){
+
+    private boolean loseCondition() {
+        for (GameCharacter c : characters) {
+            if (c.isPlayer() && !c.isDead()) {
+                return false;
+            }
+        }
+        return true;
+    }
+
+    private void displayMessage() {
+        if (message.size() < 1) {
             addMessage("nothing happened");
         }
         InOutput.out(message);
@@ -97,23 +141,23 @@ public final class TurnHandler {
     while removing a specified number of characters from the start of that arraylist
     also removes dead characters from the list
      */
-    private ArrayList<GameCharacter> reOrder(ArrayList<GameCharacter> charactersToGo, int turnsPassed){
+    private ArrayList<GameCharacter> reOrder(ArrayList<GameCharacter> charactersToGo, int turnsPassed) {
         ArrayList<GameCharacter> newCharactersToGo = new ArrayList<>();
         //remove the characters who are dead or have already taken their turn
-        for (GameCharacter c:charactersToGo) {
-            if(charactersToGo.indexOf(c) >= turnsPassed && !c.isDead()){
+        for (GameCharacter c : charactersToGo) {
+            if (charactersToGo.indexOf(c) >= turnsPassed && !c.isDead()) {
                 newCharactersToGo.add(c);
             }
         }
         //sort the remaining characters based on their initiative
         boolean sorted = false;
-        while(!sorted){
+        while (!sorted) {
             sorted = true;
-            for (int i = 0; i<newCharactersToGo.size(); i++){
-                int ii = i+1;
+            for (int i = 0; i < newCharactersToGo.size(); i++) {
+                int ii = i + 1;
 
-                if (ii!=newCharactersToGo.size() &&newCharactersToGo.get(i).getInitiative() < newCharactersToGo.get((ii)).getInitiative()){
-                    Collections.swap(newCharactersToGo,i,(ii));
+                if (ii != newCharactersToGo.size() && newCharactersToGo.get(i).getInitiative() < newCharactersToGo.get((ii)).getInitiative()) {
+                    Collections.swap(newCharactersToGo, i, (ii));
                     sorted = false;
                 }
             }

@@ -4,5 +4,7 @@ import game.character.GameCharacter;
 
 public interface Performable {
 
-    void perform();
+    boolean perform();
+
+    boolean performEnemy();
 }

@@ -11,7 +11,7 @@ public class Move extends GameAction{
     }
 
     @Override
-    public void perform() {
+    public boolean perform() {
         if(owner.getPosition() == GameConstants.CLOSERANGEPLAYER){
             owner.setPosition(GameConstants.LONGRANGEPLAYER);
         }else if(owner.getPosition() == GameConstants.LONGRANGEPLAYER){
@@ -22,9 +22,14 @@ public class Move extends GameAction{
             owner.setPosition(GameConstants.LONGRANGEENEMY);
         }else{
             TurnHandler.getInstance().addMessage(owner.getName() + " could not move");
-            return;
+            return false;
         }
         TurnHandler.getInstance().addMessage(owner.getName() + " moved");
+        return true;
+    }
 
+    @Override
+    public boolean performEnemy() {
+        return perform();
     }
 }

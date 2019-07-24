@@ -1,25 +1,40 @@
 package game.character;
 
-import game.character.actions.Attack;
-import game.character.actions.Move;
+import user.InOutput;
 
-public class PlayerCharacter extends GameCharacter {
+public abstract class PlayerCharacter extends GameCharacter {
+
+    protected String role;
+
     public PlayerCharacter(String name) {
-        super(name);
+        super();
+        this.name = name;
         player = true;
-        position = 3;
-    
-        //initialize action list (in child class if a characterClassSystem has been implemented
-        actions.add(new Move(this));
-        actions.add(new Attack(this));
     }
 
-    public void performAction(int i){
-        actions.get(i).perform();
+    public boolean performAction(int i) {
+        return actions.get(i).perform();
     }
 
-    //the following is for tespurposes
-    public void setInitiative(int initiative){
-        this.initiative = initiative;
+    @Override
+    public void turn() {
+        String[] actionList = new String[this.getActions().size()];
+        for (int i = 0; i < actionList.length; i++) {
+            if (this.getActions().get(i).getDescription() != null) {
+                actionList[i] = this.getActions().get(i).getName() + " (" + this.getActions().get(i).getDescription() + ")";
+            } else {
+                actionList[i] = this.getActions().get(i).getName();
+            }
+        }
+        boolean actionChosen = false;
+        while (!actionChosen) {
+            actionChosen = this.performAction(InOutput.chooseFromList(actionList, "actions:"));
+        }
+
+    }
+
+    @Override
+    public String getDescription() {
+        return this.role + " " + this.type.toString();
     }
 }

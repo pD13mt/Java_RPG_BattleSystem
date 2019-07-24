@@ -7,110 +7,131 @@ import game.character.GameCharacter;
 import java.util.ArrayList;
 import java.util.List;
 
-public abstract class InOutput {
+public class InOutput {
 
-    public InOutput(){
+    private InOutput() {
 
     }
 
     //INPUT
-    public static int chooseFromList(String[] list,String message){
+    public static void endTurn() {
+        IOHelper.out("\ntype anything to continue: ");
+        checkForCommands(IOHelper.confirm());
+    }
+
+    public static int chooseFromList(String[] list, String message) {
         IOHelper.out("\n" + message + "\n");
         IOHelper.displayListIndex(list);
-        while(true){
+        while (true) {
             String in = IOHelper.getString();
             checkForCommands(in);
             try {
                 int inNum = Integer.parseInt(in);
-                if(inNum < list.length && inNum >-1
+                if (inNum < list.length && inNum > -1
                 ) {
                     return inNum;
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
 
             }
         }
     }
 
-    public static int chooseCharacter(String message){
+    public static int chooseCharacter(String message) {
         IOHelper.out("\n" + message + "\n");
         String[] list = new String[TurnHandler.getInstance().getCharacters().size()];
-        for (int i = 0; i < list.length; i++){
+        for (int i = 0; i < list.length; i++) {
             list[i] = TurnHandler.getInstance().getCharacters().get(i).getName();
         }
         IOHelper.displayListIndex(list);
-        while(true){
+        while (true) {
             String in = IOHelper.getString();
             checkForCommands(in);
             try {
                 int inNum = Integer.parseInt(in);
-                if(inNum < list.length && inNum >-1
+                if (inNum < list.length && inNum > -1
                 ) {
                     return inNum;
                 }
-            }catch (Exception e){
+            } catch (Exception e) {
 
             }
         }
     }
 
-    private static void checkForCommands(String in){
-        if(in.equals(GameConstants.COMMANDS[0])){
+    private static void checkForCommands(String in) {
+        if (in.equals(GameConstants.COMMANDS[0])) {
             System.exit(0);
         }
-        if(in.equals(GameConstants.COMMANDS[1])){
+        if (in.equals(GameConstants.COMMANDS[1])) {
             info();
         }
     }
-    private static void info(){
 
+    private static void info() {
+        InOutput.displayBoard();
+        characterInfo(TurnHandler.getInstance().getCharacters().get(chooseCharacter("which character would you like to know more about?")));
     }
 
+
     //OUTPUT
-    public static void out(String message){
+    public static void out(String message) {
         IOHelper.sep('-');
         IOHelper.out(message);
         IOHelper.sep('-');
     }
-    public static void out(List<String> message){
+
+    public static void out(List<String> message) {
         IOHelper.sep('-');
-        for (String m:message) {
+        for (String m : message) {
             IOHelper.out(m);
         }
         IOHelper.sep('-');
     }
-    public static void out(String[] message){
+    public static void ln(String message){
+        IOHelper.out(message + "\n");
+    }
+
+    public static void out(String[] message) {
         IOHelper.sep('-');
-        for (String m:message) {
+        for (String m : message) {
             IOHelper.out(m);
         }
         IOHelper.sep('-');
     }
 
-    public static void displayBoard(){
+    public static void displayBoard() {
 
         IOHelper.sep('=');
         int max = 4;
-        for (int p = 1; p <= max; p++){
-            for (GameCharacter c:TurnHandler.getInstance().getCharacters()) {
+        for (int p = 1; p <= max; p++) {
+            for (GameCharacter c : TurnHandler.getInstance().getCharacters()) {
 
-                if(c.getPosition() == p){
+                if (c.getPosition() == p) {
 
                     IOHelper.out("|" + c.getName() + ":" + c.getHp() + "|");
                 }
             }
-            if(p==GameConstants.CLOSERANGEENEMY)IOHelper.out("\n");
-            if(p!=max) IOHelper.out("\n");
+            if (p == GameConstants.CLOSERANGEENEMY) IOHelper.out("\n");
+            if (p != max) IOHelper.out("\n");
         }
         IOHelper.sep('=');
 
     }
 
-    public void playerTurn(){
+    public static void characterInfo(GameCharacter c) {
+        IOHelper.out(c.getName() + ": " + c.getDescription() +
+                "\nhp: " + c.getHp() + "/" + c.getHpMax() + "\t" + c.getResourceName() + ": " + c.getRp() + "/" + c.getRpMax()
+                + "\nstrength: " + c.getStrength() + "\tdefence: " + c.getDefence() +
+                "\ninitiative: " + c.getInitiative() + "\t" +
+                "\n"); //dont remove the last \n (for formatting reasons)
+    }
+
+    public void playerTurn() {
         System.out.println("playerturn");
     }
 
-    public void enemyTurn(){
+    public void enemyTurn() {
         System.out.println("enemyturn");
     }
 
