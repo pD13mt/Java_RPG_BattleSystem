@@ -4,6 +4,8 @@ import game.GameConstants;
 import game.GameHandler;
 import game.TurnHandler;
 import game.character.actions.GameAction;
+import game.character.effects.DamageActivated;
+import game.character.effects.Effect;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -19,11 +21,13 @@ public abstract class GameCharacter implements Damageable, Actor {
     protected List<DamageType> resistances, immunities, vulnerabilities;
     //protected Tag tag;
     protected TurnHandler handler;
-    protected ArrayList<GameAction> actions;
+    protected List<GameAction> actions;
+    protected List<Effect> effects;
 
     public GameCharacter() {
         this.handler = TurnHandler.getInstance();
         this.actions = new ArrayList<>();
+        this.effects = new ArrayList<>();
         this.handler.addCharacter(this);
 
         //if no hp/rp value is specified in constructor, hp and rp are set to default value
@@ -41,16 +45,14 @@ public abstract class GameCharacter implements Damageable, Actor {
         this.resourceName = "rp";
         this.description = "";
 
-        this.init();
-
         this.hp = hpMax;
         this.rp = rpMax;
 
     }
 
-    public abstract void init(); //initialize actions, stats, startingposition
+    public abstract void init(); //initializes everything that is reset after every encounter, for everything else the constructor is used
 
-    public int rollInitiative(){
+    public int rollInitiative() {
         this.initiative = initiativeBase + new Random().nextInt(INITIATIVERANGE);
         return this.initiative;
     }
@@ -67,7 +69,25 @@ public abstract class GameCharacter implements Damageable, Actor {
         vulnerabilities.add(type);
     }
 
+    public void addEffect(Effect effect) {
+        this.effects.add(effect);
+    }
+
+    public List<Effect> getEffects() {
+        return effects;
+    }
+
     public int takeDamage(int amount, GameConstants.DamageType type) {
+
+            for (Effect e : effects) {
+                if (e instanceof DamageActivated) {
+                    ((DamageActivated) e).onDamage();
+                    if(e.getCounter()<0){
+                        e.end();
+                        effects.remove(e);
+                    }
+                }
+            }
 
         int damage = Math.abs(amount);
         int defence = this.defence;
@@ -97,7 +117,7 @@ public abstract class GameCharacter implements Damageable, Actor {
             TurnHandler.getInstance().addMessage(this.getName() + "'s body was destroyed");
             return hp;
         }
-        if (damage > defence) {
+        if (damage > defence || NONDEFENSIBLE.contains(type)) {
             this.hp -= damage;
         } else {
             TurnHandler.getInstance().addMessage(this.getName() + " took no damage");
@@ -110,10 +130,10 @@ public abstract class GameCharacter implements Damageable, Actor {
 
     public void die() {
         //does different things depending on type
-        if(this.getType() == Type.HUMAN || this.type == Type.BEAST){
+        if (this.getType() == Type.HUMAN || this.type == Type.BEAST) {
             this.setType(Type.DEAD);
         }
-        if(this.getType() == Type.ETHEREAL){
+        if (this.getType() == Type.ETHEREAL) {
             TurnHandler.getInstance().removeCharacter(this);
         }
         this.dead = true;
@@ -150,7 +170,7 @@ public abstract class GameCharacter implements Damageable, Actor {
         return strength;
     }
 
-    public ArrayList<GameAction> getActions() {
+    public List<GameAction> getActions() {
         return actions;
     }
 
@@ -201,6 +221,18 @@ public abstract class GameCharacter implements Damageable, Actor {
     public void setType(Type type) {
         this.type = type;
         GameConstants.initType(this);
+    }
+
+    public void setInitiative(int initiative) {
+        this.initiative = initiative;
+    }
+
+    public void setStrength(int strength) {
+        this.strength = strength;
+    }
+
+    public void setDefence(int defence) {
+        this.defence = defence;
     }
 
     public abstract String getDescription();

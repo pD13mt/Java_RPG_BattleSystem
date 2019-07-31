@@ -1,6 +1,10 @@
 package game.character;
 
+import game.character.effects.Effect;
+import game.character.effects.TurnActivated;
 import user.InOutput;
+
+import java.util.ArrayList;
 
 public abstract class PlayerCharacter extends GameCharacter {
 
@@ -28,9 +32,19 @@ public abstract class PlayerCharacter extends GameCharacter {
         }
         boolean actionChosen = false;
         while (!actionChosen) {
-            actionChosen = this.performAction(InOutput.chooseFromList(actionList, "actions:"));
+            actionChosen = this.performAction(InOutput.chooseFromList(actionList, this.getName() + "'s actions:"));
         }
 
+        //effects triggered at the end of turn (so the player is less likely to be taken by surprise and has more options)
+        for (Effect e:effects) {
+            if(e instanceof TurnActivated){
+                ((TurnActivated) e).turn();
+                if(e.getCounter()<0){
+                    e.end();
+                    effects.remove(e);
+                }
+            }
+        }
     }
 
     @Override

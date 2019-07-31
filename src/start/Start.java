@@ -6,6 +6,7 @@ import game.character.enemies.Ghost;
 import game.character.playerRoles.Knight;
 import game.encounter.EncounterGenerator;
 import game.encounter.Environment;
+import game.encounter.environments.HauntedForest;
 import user.InOutput;
 
 public class Start {
@@ -14,8 +15,6 @@ public class Start {
         GameHandler.getInstance().addToParty(new Knight("Bob Seger"));
         GameHandler.getInstance().addToParty(new Knight("Geraldo"));
 
-       new EncounterGenerator().generateEncounter(new Environment());
-
-        new EncounterGenerator().generateEncounter(new Environment());
+        GameHandler.getInstance().start();
     }
 }

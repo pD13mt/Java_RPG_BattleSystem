@@ -1,8 +1,10 @@
 package user;
 
 import game.GameConstants;
+import game.GameHandler;
 import game.TurnHandler;
 import game.character.GameCharacter;
+import game.character.effects.Effect;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,8 +17,12 @@ public class InOutput {
 
     //INPUT
     public static void endTurn() {
-        IOHelper.out("\ntype anything to continue: ");
-        checkForCommands(IOHelper.confirm());
+        try {
+            Thread.sleep(1000);
+        } catch (Exception e) {
+            IOHelper.out("type anything to continue");
+            IOHelper.confirm();
+        }
     }
 
     public static int chooseFromList(String[] list, String message) {
@@ -24,7 +30,10 @@ public class InOutput {
         IOHelper.displayListIndex(list);
         while (true) {
             String in = IOHelper.getString();
-            checkForCommands(in);
+            if (checkForCommands(in)) {
+                IOHelper.out("\n" + message + "\n");
+                IOHelper.displayListIndex(list);
+            }
             try {
                 int inNum = Integer.parseInt(in);
                 if (inNum < list.length && inNum > -1
@@ -46,7 +55,10 @@ public class InOutput {
         IOHelper.displayListIndex(list);
         while (true) {
             String in = IOHelper.getString();
-            checkForCommands(in);
+            if (checkForCommands(in)) {
+                IOHelper.out("\n" + message + "\n");
+                IOHelper.displayListIndex(list);
+            }
             try {
                 int inNum = Integer.parseInt(in);
                 if (inNum < list.length && inNum > -1
@@ -59,18 +71,36 @@ public class InOutput {
         }
     }
 
-    private static void checkForCommands(String in) {
+    private static boolean checkForCommands(String in) {
         if (in.equals(GameConstants.COMMANDS[0])) {
             System.exit(0);
+            return true;
         }
         if (in.equals(GameConstants.COMMANDS[1])) {
             info();
+            return true;
         }
+        return false;
     }
 
     private static void info() {
         InOutput.displayBoard();
-        characterInfo(TurnHandler.getInstance().getCharacters().get(chooseCharacter("which character would you like to know more about?")));
+
+        String[] names = new String[TurnHandler.getInstance().getCharacters().size()];
+
+        if (TurnHandler.getInstance().getCharacters().isEmpty()) {
+            for (GameCharacter c : GameHandler.getInstance().getParty()) {
+                names[GameHandler.getInstance().getParty().indexOf(c)] = c.getName() + " " + c.getType() + "\tinitiative: " + c.getInitiative();
+            }
+
+            characterInfo(GameHandler.getInstance().getParty().get(chooseFromList(names, "which character would you like to know more about?")));
+        } else {
+            for (GameCharacter c : TurnHandler.getInstance().getCharacters()) {
+                names[TurnHandler.getInstance().getCharacters().indexOf(c)] = c.getName() + " " + c.getType() + "\tinitiative: " + c.getInitiative();
+            }
+
+            characterInfo(TurnHandler.getInstance().getCharacters().get(chooseFromList(names, "which character would you like to know more about?")));
+        }
     }
 
 
@@ -88,7 +118,8 @@ public class InOutput {
         }
         IOHelper.sep('-');
     }
-    public static void ln(String message){
+
+    public static void ln(String message) {
         IOHelper.out(message + "\n");
     }
 
@@ -109,7 +140,7 @@ public class InOutput {
 
                 if (c.getPosition() == p) {
 
-                    IOHelper.out("|" + c.getName() + ":" + c.getHp() + "|");
+                    IOHelper.out("|[" + TurnHandler.getInstance().getCharacters().indexOf(c) +"]" + c.getName() + ":" + c.getHp() + "|");
                 }
             }
             if (p == GameConstants.CLOSERANGEENEMY) IOHelper.out("\n");
@@ -125,15 +156,13 @@ public class InOutput {
                 + "\nstrength: " + c.getStrength() + "\tdefence: " + c.getDefence() +
                 "\ninitiative: " + c.getInitiative() + "\t" +
                 "\n"); //dont remove the last \n (for formatting reasons)
+
+
+        if (!c.getEffects().isEmpty()) {
+            IOHelper.out("effects:\n");
+            for (Effect e : c.getEffects()) {
+                IOHelper.out(e.getName() + ": " + e.getDescription() + "\n");
+            }
+        }
     }
-
-    public void playerTurn() {
-        System.out.println("playerturn");
-    }
-
-    public void enemyTurn() {
-        System.out.println("enemyturn");
-    }
-
-
 }

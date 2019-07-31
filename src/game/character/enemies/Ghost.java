@@ -1,6 +1,7 @@
 package game.character.enemies;
 
 import game.GameConstants;
+import game.TurnHandler;
 import game.character.EnemyCharacter;
 import game.character.actions.attacks.Attack;
 
@@ -11,7 +12,7 @@ public class Ghost extends EnemyCharacter {
 
     @Override
     public void init() {
-        this.name = "Ghost" + instanceCounter;
+        this.name ="Ghost";
 
         this.setPosition(GameConstants.CLOSERANGEENEMY);
 

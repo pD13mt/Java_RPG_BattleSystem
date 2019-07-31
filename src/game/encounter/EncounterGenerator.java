@@ -6,11 +6,8 @@ import game.character.enemies.Wolf;
 
 public class EncounterGenerator {
 
-    public void generateEncounter(Environment environment){
-        new Wolf();
-        //new Wolf();
-        //new Wolf();
-
+    public void generateEncounter(Instantiator instantiator){
+        instantiator.instantiate();
         TurnHandler.getInstance().start();
     }
 }

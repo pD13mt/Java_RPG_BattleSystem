@@ -53,9 +53,12 @@ public final class TurnHandler {
     }
 
     public void start() {
-        for (GameCharacter c:GameHandler.getInstance().getParty()) {
+        for (GameCharacter c : GameHandler.getInstance().getParty()) {
             addCharacter(c);
         }
+        InOutput.displayBoard();
+        InOutput.out("you encounter enemies");
+        InOutput.endTurn();
         round();
 
     }
@@ -63,19 +66,18 @@ public final class TurnHandler {
     public void round() {
         boolean won = false;
         while (!won) {
-            for (GameCharacter c:characters) {
+            for (GameCharacter c : characters) {
                 c.rollInitiative();
             }
             ArrayList<GameCharacter> charactersToGo = reOrder(characters, 0);
             for (GameCharacter c : charactersToGo) {
 
-                try {
-                    PlayerCharacter p = (PlayerCharacter) c;
+
+                if (c.isPlayer()) {
                     InOutput.displayBoard();
                     InOutput.characterInfo(c);
-                } catch (Exception e) {
-
                 }
+
                 this.addMessage(c.getName() + "'s turn:");
                 if (!c.isDead()) {
                     c.turn();
@@ -99,11 +101,11 @@ public final class TurnHandler {
         }
     }
 
-    public void end() {
+    public synchronized void end() {
         InOutput.out("you win");
         characters.clear();
-        for (GameCharacter c:GameHandler.getInstance().getParty()) {
-            if(c.isDead()){
+        for (GameCharacter c : GameHandler.getInstance().getParty()) {
+            if (c.isDead()) {
                 GameHandler.getInstance().removeFromParty(c);
             }
         }

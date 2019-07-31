@@ -1,11 +1,9 @@
 package game.character.actions.attacks;
 
-import com.sun.deploy.security.ValidationState;
 import game.GameConstants;
 import game.TurnHandler;
 import game.character.GameCharacter;
 import game.character.actions.GameAction;
-import user.IOHelper;
 import user.InOutput;
 
 import java.util.ArrayList;
@@ -18,7 +16,7 @@ public class Charge extends GameAction {
         range = 2;
         cost = 2;
         type = GameConstants.DamageType.PHYSICAL;
-        description = generateDescription() + " charges forward on horseback";
+        description = generateDescription() + ", charges forward on horseback";
     }
 
     @Override
