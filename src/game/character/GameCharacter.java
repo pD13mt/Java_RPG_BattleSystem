@@ -1,11 +1,11 @@
 package game.character;
 
 import game.GameConstants;
-import game.GameHandler;
 import game.TurnHandler;
-import game.character.actions.GameAction;
-import game.character.effects.DamageActivated;
-import game.character.effects.Effect;
+import game.characterObservers.actions.GameAction;
+import game.characterObservers.effects.DamageActivated;
+import game.characterObservers.effects.Effect;
+import game.characterObservers.effects.TurnActivated;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -15,7 +15,7 @@ import static game.GameConstants.*;
 
 public abstract class GameCharacter implements Damageable, Actor {
     protected int hp, hpMax, rp, rpMax, initiative, initiativeBase, strength, defence, position;
-    protected boolean dead, player;
+    protected boolean dead, playerSide;
     protected String name, resourceName, description;
     protected Type type;
     protected List<DamageType> resistances, immunities, vulnerabilities;
@@ -79,15 +79,15 @@ public abstract class GameCharacter implements Damageable, Actor {
 
     public int takeDamage(int amount, GameConstants.DamageType type) {
 
-            for (Effect e : effects) {
-                if (e instanceof DamageActivated) {
-                    ((DamageActivated) e).onDamage();
-                    if(e.getCounter()<0){
-                        e.end();
-                        effects.remove(e);
-                    }
+        for (Effect e : effects) {
+            if (e instanceof DamageActivated) {
+                ((DamageActivated) e).onDamage();
+                if (e.getCounter() < 0) {
+                    e.end();
+                    effects.remove(e);
                 }
             }
+        }
 
         int damage = Math.abs(amount);
         int defence = this.defence;
@@ -119,11 +119,25 @@ public abstract class GameCharacter implements Damageable, Actor {
         }
         if (damage > defence || NONDEFENSIBLE.contains(type)) {
             this.hp -= damage;
+            TurnHandler.getInstance().addMessage(this.getName() + " takes " + damage + " " + type + " damage");
         } else {
-            TurnHandler.getInstance().addMessage(this.getName() + " took no damage");
+            TurnHandler.getInstance().addMessage(this.getName() + " takes no damage");
         }
+
+        triggerDamageEffects(); //effects that trigger on damage are triggered after damage is taken but before death occurs
+
         if (this.hp < 1) {
             die();
+        }
+        return hp;
+    }
+
+    public int heal(int amount) {
+        if (!this.dead) {
+            this.hp += amount;
+            if (this.hp > this.hpMax) {
+                this.hp = hpMax;
+            }
         }
         return hp;
     }
@@ -134,27 +148,38 @@ public abstract class GameCharacter implements Damageable, Actor {
             this.setType(Type.DEAD);
         }
         if (this.getType() == Type.ETHEREAL) {
+            TurnHandler.getInstance().addMessage(this.getName() + " disappears into thin air");
             TurnHandler.getInstance().removeCharacter(this);
+            return;
         }
         this.dead = true;
         this.hp = 0;
         TurnHandler.getInstance().addMessage(this.getName() + " is dead");
     }
 
-    public void switchSides() {
-        this.player = !this.player;
-        if (this.position == CLOSERANGEPLAYER) {
-            this.position = CLOSERANGEENEMY;
-        } else if (this.position == CLOSERANGEENEMY) {
-            this.position = CLOSERANGEPLAYER;
-        } else if (this.position == LONGRANGEPLAYER) {
-            this.position = LONGRANGEENEMY;
-        } else if (this.position == LONGRANGEENEMY) {
-            this.position = LONGRANGEPLAYER;
-        } else if (this.position == SPECIALRANGEPLAYER) {
-            this.position = SPECIALRANGENEMY;
-        } else if (this.position == SPECIALRANGENEMY) {
-            this.position = SPECIALRANGEPLAYER;
+    protected void triggerTurnEffects() {
+        for (int i = 0; i < effects.size(); i++) {
+            Effect e = effects.get(i);
+            if (e instanceof TurnActivated) {
+                ((TurnActivated) e).turn();
+                if (e.getCounter() < 1) {
+                    e.end();
+                    //effects.remove(e);
+                }
+            }
+        }
+    }
+
+    protected void triggerDamageEffects(){
+        for (int i = 0; i < effects.size(); i++) {
+            Effect e = effects.get(i);
+            if (e instanceof DamageActivated) {
+                ((TurnActivated) e).turn();
+                if (e.getCounter() < 1) {
+                    e.end();
+                    //effects.remove(e);
+                }
+            }
         }
     }
 
@@ -168,10 +193,6 @@ public abstract class GameCharacter implements Damageable, Actor {
 
     public int getStrength() {
         return strength;
-    }
-
-    public List<GameAction> getActions() {
-        return actions;
     }
 
     public int getInitiative() {
@@ -190,10 +211,6 @@ public abstract class GameCharacter implements Damageable, Actor {
         return dead;
     }
 
-    public boolean isPlayer() {
-        return player;
-    }
-
     public String getName() {
         return name;
     }
@@ -206,6 +223,10 @@ public abstract class GameCharacter implements Damageable, Actor {
         return rpMax;
     }
 
+    public boolean isPlayerSide() {
+        return playerSide;
+    }
+
     public int getDefence() {
         return defence;
     }
@@ -216,6 +237,10 @@ public abstract class GameCharacter implements Damageable, Actor {
 
     public Type getType() {
         return type;
+    }
+
+    public List<GameAction> getActions() {
+        return actions;
     }
 
     public void setType(Type type) {
@@ -233,6 +258,18 @@ public abstract class GameCharacter implements Damageable, Actor {
 
     public void setDefence(int defence) {
         this.defence = defence;
+    }
+
+    public List<DamageType> getResistances() {
+        return resistances;
+    }
+
+    public List<DamageType> getImmunities() {
+        return immunities;
+    }
+
+    public List<DamageType> getVulnerabilities() {
+        return vulnerabilities;
     }
 
     public abstract String getDescription();

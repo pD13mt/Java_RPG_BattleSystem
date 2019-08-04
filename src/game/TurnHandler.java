@@ -56,30 +56,34 @@ public final class TurnHandler {
         for (GameCharacter c : GameHandler.getInstance().getParty()) {
             addCharacter(c);
         }
-        InOutput.displayBoard();
-        InOutput.out("you encounter enemies");
-        InOutput.endTurn();
         round();
 
     }
 
     public void round() {
         boolean won = false;
+        int rounds = 1;
         while (!won) {
             for (GameCharacter c : characters) {
                 c.rollInitiative();
             }
             ArrayList<GameCharacter> charactersToGo = reOrder(characters, 0);
+
+            InOutput.out("\nround: " + rounds + "\n");
+            InOutput.endTurn();
+
             for (GameCharacter c : charactersToGo) {
 
-
-                if (c.isPlayer()) {
-                    InOutput.displayBoard();
-                    InOutput.characterInfo(c);
-                }
-
-                this.addMessage(c.getName() + "'s turn:");
                 if (!c.isDead()) {
+
+                    InOutput.displayBoard();
+
+                    if (c instanceof PlayerCharacter) {
+                        InOutput.characterInfo(c);
+                    }
+
+                    this.addMessage(c.getName() + "'s turn:");
+
                     c.turn();
                     displayMessage();
                 }
@@ -104,7 +108,9 @@ public final class TurnHandler {
     public synchronized void end() {
         InOutput.out("you win");
         characters.clear();
-        for (GameCharacter c : GameHandler.getInstance().getParty()) {
+
+        for (int i = 0; i < GameHandler.getInstance().getParty().size(); i++) {
+            GameCharacter c = GameHandler.getInstance().getParty().get(i);
             if (c.isDead()) {
                 GameHandler.getInstance().removeFromParty(c);
             }
@@ -113,7 +119,7 @@ public final class TurnHandler {
 
     private boolean winCondition() {
         for (GameCharacter c : characters) {
-            if (!c.isPlayer() && !c.isDead()) {
+            if (!(c instanceof PlayerCharacter) && !c.isDead()) {
                 return false;
             }
         }
@@ -122,7 +128,7 @@ public final class TurnHandler {
 
     private boolean loseCondition() {
         for (GameCharacter c : characters) {
-            if (c.isPlayer() && !c.isDead()) {
+            if (c instanceof PlayerCharacter && !c.isDead()) {
                 return false;
             }
         }

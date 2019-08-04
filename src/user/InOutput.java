@@ -4,9 +4,8 @@ import game.GameConstants;
 import game.GameHandler;
 import game.TurnHandler;
 import game.character.GameCharacter;
-import game.character.effects.Effect;
+import game.characterObservers.effects.Effect;
 
-import java.util.ArrayList;
 import java.util.List;
 
 public class InOutput {
@@ -16,6 +15,11 @@ public class InOutput {
     }
 
     //INPUT
+    public static String in(String message){
+        IOHelper.out(message);
+        return IOHelper.getString();
+    }
+    
     public static void endTurn() {
         try {
             Thread.sleep(1000);
@@ -134,7 +138,7 @@ public class InOutput {
     public static void displayBoard() {
 
         IOHelper.sep('=');
-        int max = 4;
+        /*int max = 4;
         for (int p = 1; p <= max; p++) {
             for (GameCharacter c : TurnHandler.getInstance().getCharacters()) {
 
@@ -145,7 +149,35 @@ public class InOutput {
             }
             if (p == GameConstants.CLOSERANGEENEMY) IOHelper.out("\n");
             if (p != max) IOHelper.out("\n");
+        }*/
+
+        for (GameCharacter c:TurnHandler.getInstance().getCharacters()) {
+            if(!c.isPlayerSide() && c.getPosition() == GameConstants.BACKROW){
+                IOHelper.out("|[" + TurnHandler.getInstance().getCharacters().indexOf(c) +"]" + c.getName() + ":" + c.getHp() + "|");
+            }
+
         }
+        IOHelper.out("\n");
+        for (GameCharacter c:TurnHandler.getInstance().getCharacters()) {
+            if (!c.isPlayerSide() && c.getPosition() == GameConstants.FRONTROW){
+                IOHelper.out("|[" + TurnHandler.getInstance().getCharacters().indexOf(c) +"]" + c.getName() + ":" + c.getHp() + "|");
+            }
+        }
+        IOHelper.out("\n\n");
+        for (GameCharacter c:TurnHandler.getInstance().getCharacters()) {
+            if(c.isPlayerSide() && c.getPosition() == GameConstants.FRONTROW){
+                IOHelper.out("|[" + TurnHandler.getInstance().getCharacters().indexOf(c) +"]" + c.getName() + ":" + c.getHp() + "|");
+            }
+
+        }
+        IOHelper.out("\n");
+        for (GameCharacter c:TurnHandler.getInstance().getCharacters()) {
+            if(c.isPlayerSide() && c.getPosition() == GameConstants.BACKROW){
+                IOHelper.out("|[" + TurnHandler.getInstance().getCharacters().indexOf(c) +"]" + c.getName() + ":" + c.getHp() + "|");
+            }
+
+        }
+
         IOHelper.sep('=');
 
     }

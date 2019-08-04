@@ -4,6 +4,7 @@ import game.character.GameCharacter;
 import game.encounter.EncounterGenerator;
 import game.encounter.Environment;
 import game.encounter.environments.HauntedForest;
+import game.encounter.environments.TestEnv;
 import user.InOutput;
 
 import java.util.ArrayList;
@@ -21,6 +22,7 @@ public class GameHandler {
         encounterGenerator = new EncounterGenerator();
         environments = new ArrayList<>();
         environments.add(new HauntedForest());
+        environments.add(new TestEnv());
     }
 
     public void start() {

@@ -2,25 +2,32 @@ package game.character.playerRoles;
 
 import game.GameConstants;
 import game.character.PlayerCharacter;
-import game.character.actions.attacks.Attack;
-import game.character.actions.Move;
-import game.character.actions.attacks.Charge;
-import game.character.actions.buffs.Shield;
+import game.characterObservers.actions.attacks.Attack;
+import game.characterObservers.actions.attacks.CrusadersVow;
+import game.characterObservers.actions.misc.Move;
+import game.characterObservers.actions.attacks.Charge;
+import game.characterObservers.actions.deBuffs.Shield;
 
 public class Knight extends PlayerCharacter {
 
     public Knight(String name) {
         super(name);
 
-        actions.add(new Move(this));
-        actions.add(new Attack(this));
-        actions.add(new Charge(this));
-        actions.add(new Shield(this));
+        new Move(this);
+        new Attack(this);
+        new Charge(this);
+        new Shield(this);
+        new CrusadersVow(this);
 
-        this.hpMax = 15;
-        this.role = "Knight";
+        this.hpMax = 20;
+        this.hp = hpMax;
+
+        this.rpMax = 12;
+        this.rp = rpMax;
+
+        this.role = GameConstants.PlayerRole.KNIGHT;
         this.type = GameConstants.Type.HUMAN;
-        position = GameConstants.CLOSERANGEPLAYER;
+        position = GameConstants.FRONTROW;
 
         this.init();
     }
@@ -28,7 +35,7 @@ public class Knight extends PlayerCharacter {
     @Override
     public void init() {
 
-        this.defence = 2;
+        this.defence = 3;
         this.strength = 5;
         this.initiativeBase = 8;
 
