@@ -10,7 +10,6 @@ import java.util.List;
 public abstract class GameAction implements Performable, Targetable {
 
     protected String name, description;
-    protected GameConstants.DamageType type;
     protected GameCharacter owner;
     protected int cost, range;
 

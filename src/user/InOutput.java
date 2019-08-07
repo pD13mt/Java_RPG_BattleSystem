@@ -6,6 +6,7 @@ import game.TurnHandler;
 import game.character.GameCharacter;
 import game.characterObservers.effects.Effect;
 
+import java.util.ArrayList;
 import java.util.List;
 
 public class InOutput {
@@ -15,14 +16,14 @@ public class InOutput {
     }
 
     //INPUT
-    public static String in(String message){
+    public static String in(String message) {
         IOHelper.out(message);
         return IOHelper.getString();
     }
-    
+
     public static void endTurn() {
         try {
-            Thread.sleep(1000);
+            Thread.sleep(2000);
         } catch (Exception e) {
             IOHelper.out("type anything to continue");
             IOHelper.confirm();
@@ -99,11 +100,41 @@ public class InOutput {
 
             characterInfo(GameHandler.getInstance().getParty().get(chooseFromList(names, "which character would you like to know more about?")));
         } else {
-            for (GameCharacter c : TurnHandler.getInstance().getCharacters()) {
-                names[TurnHandler.getInstance().getCharacters().indexOf(c)] = c.getName() + " " + c.getType() + "\tinitiative: " + c.getInitiative();
+
+            String[] options = {"initiative", "graveyard", "characterInfo", "back"};
+
+            int choice = chooseFromList(options, "what do you want to know about?");
+
+            switch (choice) {
+                case 0:
+                    List<GameCharacter> ordered = TurnHandler.getInstance().reOrder(TurnHandler.getInstance().getCharacters(), 0);
+                    String[] chars = new String[TurnHandler.getInstance().getCharacters().size()];
+                    for (int i = 0; i < chars.length; i++) {
+                        chars[i] = ordered.get(i).getInitiative() + " " + ordered.get(i).getName();
+                    }
+                    InOutput.ln("initiative order: ");
+                    IOHelper.displayList(chars);
+                    break;
+                case 1:
+                    String[] deads = new String[TurnHandler.getInstance().getGraveYard().size()];
+                    if (TurnHandler.getInstance().getGraveYard().isEmpty()) InOutput.ln("graveyard empty");
+                    for (int i = 0; i < deads.length; i++) {
+                        deads[i] = TurnHandler.getInstance().getGraveYard().get(i).getInitiative() + " " + TurnHandler.getInstance().getCharacters().get(i).getName();
+                    }
+                    IOHelper.displayList(deads);
+                    break;
+                case 2:
+                    for (GameCharacter c : TurnHandler.getInstance().getCharacters()) {
+                        names[TurnHandler.getInstance().getCharacters().indexOf(c)] = c.getName() + " " + c.getType();
+                    }
+
+                    characterInfo(TurnHandler.getInstance().getCharacters().get(chooseFromList(names, "which character would you like to know more about?")));
+                    break;
+                default:
+                    break;
             }
 
-            characterInfo(TurnHandler.getInstance().getCharacters().get(chooseFromList(names, "which character would you like to know more about?")));
+
         }
     }
 
@@ -124,6 +155,15 @@ public class InOutput {
     }
 
     public static void ln(String message) {
+        IOHelper.out(message + "\n");
+    }
+
+    public static void ln(long delay, String message) {
+        try {
+            Thread.sleep(delay);
+        } catch (InterruptedException e) {
+            e.printStackTrace();
+        }
         IOHelper.out(message + "\n");
     }
 
@@ -151,29 +191,29 @@ public class InOutput {
             if (p != max) IOHelper.out("\n");
         }*/
 
-        for (GameCharacter c:TurnHandler.getInstance().getCharacters()) {
-            if(!c.isPlayerSide() && c.getPosition() == GameConstants.BACKROW){
-                IOHelper.out("|[" + TurnHandler.getInstance().getCharacters().indexOf(c) +"]" + c.getName() + ":" + c.getHp() + "|");
+        for (GameCharacter c : TurnHandler.getInstance().getCharacters()) {
+            if (!c.isPlayerSide() && c.getPosition() == GameConstants.BACKROW) {
+                IOHelper.out("|[" + TurnHandler.getInstance().getCharacters().indexOf(c) + "]" + c.getName() + ":" + c.getHp() + "|");
             }
 
         }
         IOHelper.out("\n");
-        for (GameCharacter c:TurnHandler.getInstance().getCharacters()) {
-            if (!c.isPlayerSide() && c.getPosition() == GameConstants.FRONTROW){
-                IOHelper.out("|[" + TurnHandler.getInstance().getCharacters().indexOf(c) +"]" + c.getName() + ":" + c.getHp() + "|");
+        for (GameCharacter c : TurnHandler.getInstance().getCharacters()) {
+            if (!c.isPlayerSide() && c.getPosition() == GameConstants.FRONTROW) {
+                IOHelper.out("|[" + TurnHandler.getInstance().getCharacters().indexOf(c) + "]" + c.getName() + ":" + c.getHp() + "|");
             }
         }
         IOHelper.out("\n\n");
-        for (GameCharacter c:TurnHandler.getInstance().getCharacters()) {
-            if(c.isPlayerSide() && c.getPosition() == GameConstants.FRONTROW){
-                IOHelper.out("|[" + TurnHandler.getInstance().getCharacters().indexOf(c) +"]" + c.getName() + ":" + c.getHp() + "|");
+        for (GameCharacter c : TurnHandler.getInstance().getCharacters()) {
+            if (c.isPlayerSide() && c.getPosition() == GameConstants.FRONTROW) {
+                IOHelper.out("|[" + TurnHandler.getInstance().getCharacters().indexOf(c) + "]" + c.getName() + ":" + c.getHp() + "|");
             }
 
         }
         IOHelper.out("\n");
-        for (GameCharacter c:TurnHandler.getInstance().getCharacters()) {
-            if(c.isPlayerSide() && c.getPosition() == GameConstants.BACKROW){
-                IOHelper.out("|[" + TurnHandler.getInstance().getCharacters().indexOf(c) +"]" + c.getName() + ":" + c.getHp() + "|");
+        for (GameCharacter c : TurnHandler.getInstance().getCharacters()) {
+            if (c.isPlayerSide() && c.getPosition() == GameConstants.BACKROW) {
+                IOHelper.out("|[" + TurnHandler.getInstance().getCharacters().indexOf(c) + "]" + c.getName() + ":" + c.getHp() + "|");
             }
 
         }

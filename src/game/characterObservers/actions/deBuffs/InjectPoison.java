@@ -16,14 +16,13 @@ public class InjectPoison extends GameAction {
         name = "inject poison";
         cost = 3;
         range = 1;
-        type = GameConstants.DamageType.PHYSICAL;
         description = generateDescription();
     }
 
     @Override
     public boolean perform() {
 
-        GameCharacter target = chooseTarget(TurnHandler.getInstance().getCharacters().stream().filter(p -> GameConstants.distance(owner, p) <= range).collect(Collectors.toList()));
+        GameCharacter target = chooseTarget(TurnHandler.getInstance().getCharacters().stream().filter(p -> GameConstants.distance(owner, p) <= range).collect(Collectors.toCollection(ArrayList::new)));
         if(target == null){
             InOutput.ln("no valid targets");
             return false;

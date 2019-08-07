@@ -43,9 +43,6 @@ public abstract class PlayerCharacter extends GameCharacter {
         while (!actionChosen) {
             actionChosen = this.performAction(InOutput.chooseFromList(actionList, this.getName() + "'s actions:"));
         }
-
-        //trigger turnEffects
-        triggerTurnEffects();
     }
 
 

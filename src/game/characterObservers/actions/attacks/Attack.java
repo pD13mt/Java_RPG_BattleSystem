@@ -15,8 +15,7 @@ public class Attack extends GameAction {
         super(owner);
         name = "attack";
         range = 1;
-        type = GameConstants.DamageType.PHYSICAL;
-        description = generateDescription();
+        description = generateDescription() + ", deals damage equal to character's strength";
     }
 
 
@@ -32,7 +31,7 @@ public class Attack extends GameAction {
         //deal damage
         int power = owner.getStrength();
         TurnHandler.getInstance().addMessage(owner.getName() + " has attacked " + target.getName() + " for " + power + " points of damage");
-        target.takeDamage(power, type);
+        target.takeDamage(power, GameConstants.DamageType.PHYSICAL);
         //inform player
 
         return true;

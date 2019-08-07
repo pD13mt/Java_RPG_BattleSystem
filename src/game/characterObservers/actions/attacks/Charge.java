@@ -15,8 +15,7 @@ public class Charge extends GameAction {
         name = "charge";
         range = 2;
         cost = 2;
-        type = GameConstants.DamageType.PHYSICAL;
-        description = generateDescription() + ", charges forward on horseback";
+        description = generateDescription() + ", charges forward on horseback (dmg = strength*2";
     }
 
     @Override
@@ -43,7 +42,7 @@ public class Charge extends GameAction {
         owner.setPosition(GameConstants.FRONTROW);
 
         TurnHandler.getInstance().addMessage(owner.getName() + " charged at " + target.getName() + ", dealing " + power + " damage");
-        target.takeDamage(power, type);
+        target.takeDamage(power, GameConstants.DamageType.PHYSICAL);
         return true;
     }
 }

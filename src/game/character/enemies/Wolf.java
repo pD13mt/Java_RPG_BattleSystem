@@ -60,7 +60,7 @@ public class Wolf extends EnemyCharacter {
 
             int power = owner.getStrength();
             TurnHandler.getInstance().addMessage(owner.getName() + " bites " + target.getName() + " for " + power + " points of damage");
-            target.takeDamage(power, type);
+            target.takeDamage(power, GameConstants.DamageType.PHYSICAL);
             return true;
         }
     }

@@ -1,11 +1,7 @@
 package game;
 
 import game.character.GameCharacter;
-import game.encounter.EncounterGenerator;
-import game.encounter.Environment;
-import game.encounter.environments.HauntedForest;
-import game.encounter.environments.TestEnv;
-import user.InOutput;
+import game.environment.Environment;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -14,48 +10,30 @@ public class GameHandler {
 
     private static GameHandler instance;
     private List<GameCharacter> party;
-    private EncounterGenerator encounterGenerator;
-    private List<Environment> environments;
+
 
     private GameHandler() {
         party = new ArrayList<>();
-        encounterGenerator = new EncounterGenerator();
-        environments = new ArrayList<>();
-        environments.add(new HauntedForest());
-        environments.add(new TestEnv());
+
     }
 
-    public void start() {
+    public void start(Environment environment) {
 
-        chooseArea();
+        Environment currentEnv = environment;
+
+        new CharacterGenerator().generateChar();
+
+
+        while(true){
+            currentEnv.play();
+
+            currentEnv = currentEnv.getNextEnv();
+        }
 
     }
 
     public void initializParty(){
 
-    }
-
-    public void chooseArea(){
-        String[] envNames = new String[environments.size()];
-        for (Environment e : environments) {
-            if(e.isCompleted()){
-                envNames[environments.indexOf(e)] = e.getName() + " (completed)";
-            }
-            envNames[environments.indexOf(e)] = e.getName();
-        }
-
-        boolean chosen = false;
-        while(!chosen){
-            int envX = InOutput.chooseFromList(envNames, "where do you want to go?");
-
-            if(environments.get(envX).isCompleted()){
-                InOutput.ln("area already completed");
-            }else{
-                InOutput.out("entering " + environments.get(envX).getName());
-                encounterGenerator.generateEncounter(environments.get(envX));
-            }
-
-        }
     }
 
     public static GameHandler getInstance() {

@@ -25,6 +25,11 @@ public final class GameConstants {
     
     
     public static void initType(GameCharacter c) {
+
+        c.getImmunities().clear();
+        c.getResistances().clear();
+        c.getVulnerabilities().clear();
+
         if (c.getType() == Type.HUMAN) {
 
         }

@@ -1,12 +1,12 @@
 package game;
 
-import game.character.EnemyCharacter;
 import game.character.GameCharacter;
 import game.character.PlayerCharacter;
 import user.InOutput;
 
 import java.util.ArrayList;
 import java.util.Collections;
+import java.util.List;
 
 /*
 singleton DPa
@@ -14,11 +14,13 @@ singleton DPa
 public final class TurnHandler {
 
     private static TurnHandler instance;
-    private ArrayList<String> message;
-    private ArrayList<GameCharacter> characters;
+    private List<String> message;
+    private List<GameCharacter> characters;
+    private List<GameCharacter> graveYard;
 
     private TurnHandler() {
         characters = new ArrayList<>();
+        graveYard = new ArrayList<>();
         message = new ArrayList<>();
     }
 
@@ -30,8 +32,10 @@ public final class TurnHandler {
     }
 
     public void addCharacter(GameCharacter c) {
-        if (!characters.contains(c))
+        if (!characters.contains(c)) {
             characters.add(c);
+            reOrder(characters, 0);
+        }
     }
 
     public void removeCharacter(GameCharacter c) {
@@ -48,8 +52,12 @@ public final class TurnHandler {
 
     }
 
-    public ArrayList<GameCharacter> getCharacters() {
+    public List<GameCharacter> getCharacters() {
         return characters;
+    }
+
+    public List<GameCharacter> getGraveYard() {
+        return graveYard;
     }
 
     public void start() {
@@ -67,14 +75,14 @@ public final class TurnHandler {
             for (GameCharacter c : characters) {
                 c.rollInitiative();
             }
-            ArrayList<GameCharacter> charactersToGo = reOrder(characters, 0);
+            List<GameCharacter> charactersToGo = reOrder(characters, 0);
 
             InOutput.out("\nround: " + rounds + "\n");
             InOutput.endTurn();
 
             for (GameCharacter c : charactersToGo) {
 
-                if (!c.isDead()) {
+                if (!c.inGraveYard()) {
 
                     InOutput.displayBoard();
 
@@ -85,8 +93,10 @@ public final class TurnHandler {
                     this.addMessage(c.getName() + "'s turn:");
 
                     c.turn();
-                    displayMessage();
+
                 }
+                c.triggerTurnEffects();
+                displayMessage();
 
 
                 charactersToGo = reOrder(charactersToGo, 1);
@@ -102,24 +112,28 @@ public final class TurnHandler {
             if (won) {
                 end();
             }
+
+            rounds++;
         }
     }
 
     public synchronized void end() {
         InOutput.out("you win");
         characters.clear();
+        graveYard.clear();
 
         for (int i = 0; i < GameHandler.getInstance().getParty().size(); i++) {
             GameCharacter c = GameHandler.getInstance().getParty().get(i);
-            if (c.isDead()) {
+            if (c.inGraveYard()) {
                 GameHandler.getInstance().removeFromParty(c);
             }
+            c.init();
         }
     }
 
     private boolean winCondition() {
         for (GameCharacter c : characters) {
-            if (!(c instanceof PlayerCharacter) && !c.isDead()) {
+            if (!(c instanceof PlayerCharacter) && !c.inGraveYard()) {
                 return false;
             }
         }
@@ -128,7 +142,7 @@ public final class TurnHandler {
 
     private boolean loseCondition() {
         for (GameCharacter c : characters) {
-            if (c instanceof PlayerCharacter && !c.isDead()) {
+            if (c instanceof PlayerCharacter && !c.inGraveYard()) {
                 return false;
             }
         }
@@ -149,11 +163,11 @@ public final class TurnHandler {
     while removing a specified number of characters from the start of that arraylist
     also removes dead characters from the list
      */
-    private ArrayList<GameCharacter> reOrder(ArrayList<GameCharacter> charactersToGo, int turnsPassed) {
+    public List<GameCharacter> reOrder(List<GameCharacter> charactersToGo, int turnsPassed) {
         ArrayList<GameCharacter> newCharactersToGo = new ArrayList<>();
         //remove the characters who are dead or have already taken their turn
         for (GameCharacter c : charactersToGo) {
-            if (charactersToGo.indexOf(c) >= turnsPassed && !c.isDead()) {
+            if (charactersToGo.indexOf(c) >= turnsPassed && !c.inGraveYard()) {
                 newCharactersToGo.add(c);
             }
         }

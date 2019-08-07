@@ -19,10 +19,12 @@ public class Knight extends PlayerCharacter {
         new Shield(this);
         new CrusadersVow(this);
 
+        this.resourceName = "chivalry";
+
         this.hpMax = 20;
         this.hp = hpMax;
 
-        this.rpMax = 12;
+        this.rpMax = 10;
         this.rp = rpMax;
 
         this.role = GameConstants.PlayerRole.KNIGHT;
@@ -34,6 +36,8 @@ public class Knight extends PlayerCharacter {
 
     @Override
     public void init() {
+
+        this.rp = rpMax;
 
         this.defence = 3;
         this.strength = 5;

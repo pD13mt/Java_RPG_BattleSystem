@@ -15,8 +15,8 @@ import static game.GameConstants.*;
 
 public abstract class GameCharacter implements Damageable, Actor {
     protected int hp, hpMax, rp, rpMax, initiative, initiativeBase, strength, defence, position;
-    protected boolean dead, playerSide;
-    protected String name, resourceName, description;
+    protected boolean playerSide;
+    protected String name, resourceName;
     protected Type type;
     protected List<DamageType> resistances, immunities, vulnerabilities;
     //protected Tag tag;
@@ -43,7 +43,6 @@ public abstract class GameCharacter implements Damageable, Actor {
         this.immunities = new ArrayList<>();
         this.vulnerabilities = new ArrayList<>();
         this.resourceName = "rp";
-        this.description = "";
 
         this.hp = hpMax;
         this.rp = rpMax;
@@ -88,9 +87,18 @@ public abstract class GameCharacter implements Damageable, Actor {
                 }
             }
         }
+        int damage = 0;
+        if(amount > 0){
+            damage = amount;
+        }
 
-        int damage = Math.abs(amount);
         int defence = this.defence;
+
+        if (inGraveYard() && !immunities.contains(type)) {
+            TurnHandler.getInstance().removeCharacter(this);
+            TurnHandler.getInstance().addMessage(this.getName() + "'s body was destroyed");
+            return hp;
+        }
 
         for (DamageType t : vulnerabilities) {
             if (t == type) {
@@ -112,11 +120,6 @@ public abstract class GameCharacter implements Damageable, Actor {
             }
         }
 
-        if (isDead()) {
-            TurnHandler.getInstance().removeCharacter(this);
-            TurnHandler.getInstance().addMessage(this.getName() + "'s body was destroyed");
-            return hp;
-        }
         if (damage > defence || NONDEFENSIBLE.contains(type)) {
             this.hp -= damage;
             TurnHandler.getInstance().addMessage(this.getName() + " takes " + damage + " " + type + " damage");
@@ -133,7 +136,7 @@ public abstract class GameCharacter implements Damageable, Actor {
     }
 
     public int heal(int amount) {
-        if (!this.dead) {
+        if (!this.inGraveYard()) {
             this.hp += amount;
             if (this.hp > this.hpMax) {
                 this.hp = hpMax;
@@ -142,22 +145,34 @@ public abstract class GameCharacter implements Damageable, Actor {
         return hp;
     }
 
+    public int replenishRp(int amount) {
+
+        this.rp += amount;
+        if (this.rp > this.rpMax) {
+            this.rp = rpMax;
+        }
+        return this.rp;
+    }
+
     public void die() {
         //does different things depending on type
         if (this.getType() == Type.HUMAN || this.type == Type.BEAST) {
             this.setType(Type.DEAD);
+            TurnHandler.getInstance().getCharacters().remove(this);
         }
         if (this.getType() == Type.ETHEREAL) {
             TurnHandler.getInstance().addMessage(this.getName() + " disappears into thin air");
             TurnHandler.getInstance().removeCharacter(this);
             return;
         }
-        this.dead = true;
+
+        TurnHandler.getInstance().getGraveYard().add(this);
+
         this.hp = 0;
         TurnHandler.getInstance().addMessage(this.getName() + " is dead");
     }
 
-    protected void triggerTurnEffects() {
+    public void triggerTurnEffects() {
         for (int i = 0; i < effects.size(); i++) {
             Effect e = effects.get(i);
             if (e instanceof TurnActivated) {
@@ -170,7 +185,7 @@ public abstract class GameCharacter implements Damageable, Actor {
         }
     }
 
-    protected void triggerDamageEffects(){
+    protected void triggerDamageEffects() {
         for (int i = 0; i < effects.size(); i++) {
             Effect e = effects.get(i);
             if (e instanceof DamageActivated) {
@@ -207,8 +222,12 @@ public abstract class GameCharacter implements Damageable, Actor {
         this.position = position;
     }
 
-    public boolean isDead() {
-        return dead;
+    public boolean inGraveYard() {
+        if(TurnHandler.getInstance().getGraveYard().contains(this)){
+            return true;
+        }else {
+            return false;
+        }
     }
 
     public String getName() {

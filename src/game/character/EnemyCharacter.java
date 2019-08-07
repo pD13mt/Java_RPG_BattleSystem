@@ -18,9 +18,6 @@ public abstract class EnemyCharacter extends GameCharacter implements Scripted, 
     @Override
     public void turn() {
         this.act();
-
-        //triggger turnactivated effects
-        triggerTurnEffects();
     }
 
     @Override
@@ -47,7 +44,7 @@ public abstract class EnemyCharacter extends GameCharacter implements Scripted, 
     protected GameCharacter targetOpponent(int range, int preferredRow) {
         ArrayList<GameCharacter> possible = TurnHandler.getInstance().getCharacters().stream().filter(p -> GameConstants.distance(this,p) <= range).filter(p -> p.isPlayerSide() != this.isPlayerSide()).filter(p -> p.getPosition() == preferredRow).collect(toCollection(ArrayList::new));
         if(possible.isEmpty()){
-            possible = TurnHandler.getInstance().getCharacters().stream().filter(p -> GameConstants.distance(this,p) <= range).collect(toCollection(ArrayList::new));
+            possible = TurnHandler.getInstance().getCharacters().stream().filter(p-> p.isPlayerSide() != this.isPlayerSide()).filter(p -> GameConstants.distance(this,p) <= range).collect(toCollection(ArrayList::new));
             if(possible.isEmpty()){
                 return null;
             }

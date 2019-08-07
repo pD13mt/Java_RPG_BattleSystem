@@ -17,7 +17,7 @@ public class CharacterGenerator {
 
         //choose name
 
-        String name = InOutput.in("what is your name?\n");
+        String name = InOutput.in("what is your character's name?\n");
 
         //choose role
         ArrayList<GameConstants.PlayerRole> roleArrayList = new ArrayList<>();
@@ -29,7 +29,7 @@ public class CharacterGenerator {
             roleNames[roleArrayList.indexOf(pr)] = pr.toString();
         }
 
-        GameConstants.PlayerRole role = roleArrayList.get(InOutput.chooseFromList(roleNames, "what is your job?"));
+        GameConstants.PlayerRole role = roleArrayList.get(InOutput.chooseFromList(roleNames, "what is your character's job?"));
 
         PlayerCharacter nChar = null;
 
@@ -37,15 +37,18 @@ public class CharacterGenerator {
             case KNIGHT:
                 nChar = new Knight(name);
                 GameHandler.getInstance().addToParty(nChar);
+                break;
 
             case DOCTOR:
                 nChar = new Doctor(name);
                 GameHandler.getInstance().addToParty(nChar);
+                break;
 
             default:
-                InOutput.out(nChar.getName() + " the " + nChar.getRole() + " joins the party");
-                return nChar;
+                break;
         }
+        InOutput.out(nChar.getName() + " the " + nChar.getRole() + " joins the party");
+        return nChar;
     }
 
     public GameCharacter recruitChar() {    //used to recruit characters from a set list of roles (?specified in Environment?)
